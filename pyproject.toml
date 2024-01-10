@@ -13,6 +13,8 @@ langserve = {extras = ["server"], version = "^0.0.38"}
 python-dotenv = "^1.0.0"
 langchain-openai = "^0.0.2"
 pydantic-settings = "^2.1.0"
+azure-search-documents = "11.4.0b8"
+azure-identity = "^1.15.0"
 
 
 [tool.poetry.group.lint.dependencies]
