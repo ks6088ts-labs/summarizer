@@ -25,6 +25,7 @@ lint: ## lint codes
 .PHONY: format
 format: ## format codes
 	poetry run black $(SOURCE_FILES)
+	poetry run ruff $(SOURCE_FILES) --fix
 
 .PHONY: test
 test: ## test codes

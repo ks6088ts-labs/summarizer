@@ -1,13 +1,28 @@
 from fastapi import FastAPI
+from langchain.prompts import ChatPromptTemplate
+from langchain_openai.chat_models import AzureChatOpenAI
+from langserve import add_routes
+
+from server.settings import azure_openai as azure_openai_settings
 
 app = FastAPI()
 
+prompt = ChatPromptTemplate.from_template(
+    "Please summarize the following sentences in three lines,\
+    using the same language as the original text.\n```\n{topic}\n```"
+)
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+settings = azure_openai_settings.AzureOpenAiSettings()
 
+azure_chat_openai_model = AzureChatOpenAI(
+    api_version=settings.api_version,
+    azure_endpoint=settings.azure_endpoint,
+    azure_deployment=settings.azure_deployment,
+    api_key=settings.api_key,
+)
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
+add_routes(
+    app,
+    prompt | azure_chat_openai_model,
+    path="/azure_openai",
+)
