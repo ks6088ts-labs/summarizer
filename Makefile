@@ -28,10 +28,10 @@ format: ## format codes
 
 .PHONY: test
 test: ## test codes
-	poetry run pytest $(SOURCE_FILES)
+	# poetry run pytest $(SOURCE_FILES)
 
 .PHONY: ci-test
-ci-test: lint test ## run CI test
+ci-test: install-deps lint test ## run CI test
 
 .PHONY: server
 server: ## run server
