@@ -35,5 +35,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/handson-langchain:${{steps.set_version.outputs.no-dash}}
-            ${{ secrets.DOCKERHUB_USERNAME }}/handson-langchain:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/summarizer:${{steps.set_version.outputs.no-dash}}
+            ${{ secrets.DOCKERHUB_USERNAME }}/summarizer:latest
