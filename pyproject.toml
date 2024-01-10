@@ -20,6 +20,10 @@ codespell = "^2.2.6"
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "^4.0.10"
 
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.4"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
