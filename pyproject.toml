@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "summarizer"
+version = "0.0.1"
+description = "summarizer"
+authors = ["ks6088ts <ks6088ts@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+langchain = "^0.1.0"
+langserve = {extras = ["server"], version = "^0.0.38"}
+python-dotenv = "^1.0.0"
+langchain-openai = "^0.0.2"
+pydantic-settings = "^2.1.0"
+
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.1.11"
+codespell = "^2.2.6"
+
+
+[tool.poetry.group.dev.dependencies]
+jupyterlab = "^4.0.10"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.4"
+
+
+[tool.poetry.group.format.dependencies]
+black = "^23.12.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+select = [
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "I",  # isort
+]
