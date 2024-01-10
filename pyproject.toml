@@ -10,6 +10,7 @@ readme = "README.md"
 python = "^3.10"
 langchain = "^0.1.0"
 langserve = {extras = ["server"], version = "^0.0.38"}
+python-dotenv = "^1.0.0"
 
 
 [tool.poetry.group.lint.dependencies]
