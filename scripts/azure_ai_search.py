@@ -1,5 +1,5 @@
-# https://python.langchain.com/docs/integrations/vectorstores/azuresearch
 import os
+from enum import Enum
 
 from azure.search.documents.indexes.models import (
     SearchableField,
@@ -11,9 +11,10 @@ from dotenv import load_dotenv
 from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_openai import AzureOpenAIEmbeddings
 
-# azure_embeddings_openai
-load_dotenv("./azure_embeddings_openai.env")
-load_dotenv("./azure_ai_search.env")
+
+class ResourceTag(Enum):
+    BASIC = "basic"
+    ADVANCED = "advanced"
 
 
 def get_embeddings() -> AzureOpenAIEmbeddings:
@@ -59,12 +60,23 @@ def get_azure_search(index_name: str, embeddings: AzureOpenAIEmbeddings) -> Azur
             type=SearchFieldDataType.String,
             searchable=True,
         ),
+        # Additional field to store the title
         SearchableField(
-            name="tag",
+            name="title",
             type=SearchFieldDataType.String,
             searchable=True,
+        ),
+        # Additional field for filtering on document source
+        SimpleField(
+            name="source",
+            type=SearchFieldDataType.String,
+            filterable=True,
+        ),
+        SearchableField(
+            name="tag",
+            type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+            filterable=True,
             retrievable=False,
-            sortable=True,
         ),
     ]
 
@@ -78,21 +90,57 @@ def get_azure_search(index_name: str, embeddings: AzureOpenAIEmbeddings) -> Azur
     )
 
 
-embeddings = get_embeddings()
-azure_search = get_azure_search(
-    index_name="azure-ai-search",
-    embeddings=embeddings,
-)
+def main():
+    # load environment variables
+    load_dotenv("./azure_embeddings_openai.env")
+    load_dotenv("./azure_ai_search.env")
 
-azure_search.add_texts(
-    ["Test 1", "Test 2", "Test 3"],
-    [
-        {"title": "Title 1", "source": "A", "random": "10290"},
-        {"title": "Title 2", "source": "A", "random": "48392"},
-        {"title": "Title 3", "source": "B", "random": "32893"},
-    ],
-)
+    # instantiate AzureOpenAIEmbeddings
+    embeddings = get_embeddings()
 
-res = azure_search.similarity_search(query="Test 3 source1", k=3, search_type="hybrid")
+    # instantiate AzureSearch
+    azure_search = get_azure_search(
+        index_name="azure-ai-search",
+        embeddings=embeddings,
+    )
 
-print(res)
+    # add mock documents into AzureSearch
+    azure_search.add_texts(
+        texts=["Test 1", "Test 2", "Test 3"],
+        metadatas=[
+            {
+                "title": "Title 1",
+                "source": "A",
+                "random": "10290",
+                "tag": ResourceTag.BASIC.value,
+            },
+            {
+                "title": "Title 2",
+                "source": "A",
+                "random": "48392",
+                "tag": ResourceTag.ADVANCED.value,
+            },
+            {
+                "title": "Title 3",
+                "source": "B",
+                "random": "32893",
+                "tag": ResourceTag.BASIC.value,
+            },
+        ],
+    )
+
+    # Note: need to wait until the index is updated
+
+    # query for similar documents with filters
+    for tag in [ResourceTag.BASIC.value, ResourceTag.ADVANCED.value]:
+        response = azure_search.similarity_search(
+            query="Test 3 source1",
+            k=3,
+            search_type="hybrid",
+            filters=f"tag eq '{tag}'",
+        )
+        print(f"tag: {tag}, response, {response}")
+
+
+if __name__ == "__main__":
+    main()
