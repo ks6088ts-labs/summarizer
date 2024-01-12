@@ -100,12 +100,12 @@ def main():
 
     # instantiate AzureSearch
     azure_search = get_azure_search(
-        index_name="azure-ai-search",
+        index_name="azure-ai-search-script",
         embeddings=embeddings,
     )
 
     # add mock documents into AzureSearch
-    azure_search.add_texts(
+    response = azure_search.add_texts(
         texts=["Test 1", "Test 2", "Test 3"],
         metadatas=[
             {
@@ -128,6 +128,7 @@ def main():
             },
         ],
     )
+    print(f"add_texts response: {response}")
 
     # Note: need to wait until the index is updated
 
