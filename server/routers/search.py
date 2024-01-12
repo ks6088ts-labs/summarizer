@@ -18,7 +18,7 @@ def add_router(app: FastAPI, path: str):
         azure_embeddings_openai_settings.AzureEmbeddingsOpenAiSettings()
     )
 
-    azure_embeddings_openai_model = AzureOpenAIEmbeddings(
+    embeddings = AzureOpenAIEmbeddings(
         api_version=embeddings_settings.api_version,
         azure_endpoint=embeddings_settings.azure_endpoint,
         azure_deployment=embeddings_settings.azure_deployment,
@@ -39,14 +39,13 @@ def add_router(app: FastAPI, path: str):
             name="content",
             type=SearchFieldDataType.String,
             searchable=True,
+            analyzer_name="ja.lucene",
         ),
         SearchField(
             name="content_vector",
             type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
             searchable=True,
-            vector_search_dimensions=len(
-                azure_embeddings_openai_model.embed_query("Text")
-            ),
+            vector_search_dimensions=len(embeddings.embed_query("Text")),
             vector_search_configuration="default",
         ),
         SearchableField(
@@ -54,12 +53,23 @@ def add_router(app: FastAPI, path: str):
             type=SearchFieldDataType.String,
             searchable=True,
         ),
+        # Additional field to store the title
         SearchableField(
-            name="tag",
+            name="title",
             type=SearchFieldDataType.String,
             searchable=True,
+        ),
+        # Additional field for filtering on document source
+        SimpleField(
+            name="source",
+            type=SearchFieldDataType.String,
+            filterable=True,
+        ),
+        SearchableField(
+            name="tag",
+            type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+            filterable=True,
             retrievable=False,
-            sortable=True,
         ),
     ]
 
@@ -67,7 +77,7 @@ def add_router(app: FastAPI, path: str):
         azure_search_endpoint=ai_search_settings.azure_search_endpoint,
         azure_search_key=ai_search_settings.azure_search_key,
         index_name=ai_search_settings.index_name,
-        embedding_function=azure_embeddings_openai_model.embed_query,
+        embedding_function=embeddings.embed_query,
         semantic_query_language="ja-jp",
         fields=fields,
     )
