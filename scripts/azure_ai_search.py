@@ -32,7 +32,8 @@ def get_embeddings() -> AzureOpenAIEmbeddings:
     )
 
 
-def get_azure_search(index_name: str, embeddings: AzureOpenAIEmbeddings) -> AzureSearch:
+def get_azure_search(embeddings: AzureOpenAIEmbeddings) -> AzureSearch:
+    index_name = os.getenv("index_name")
     azure_search_endpoint = os.getenv("azure_search_endpoint")
     azure_search_key = os.getenv("azure_search_key")
 
@@ -47,6 +48,7 @@ def get_azure_search(index_name: str, embeddings: AzureOpenAIEmbeddings) -> Azur
             name="content",
             type=SearchFieldDataType.String,
             searchable=True,
+            analyzer_name="ja.lucene",
         ),
         SearchField(
             name="content_vector",
@@ -100,28 +102,27 @@ def main():
 
     # instantiate AzureSearch
     azure_search = get_azure_search(
-        index_name="azure-ai-search-script",
         embeddings=embeddings,
     )
 
     # add mock documents into AzureSearch
     response = azure_search.add_texts(
-        texts=["Test 1", "Test 2", "Test 3"],
+        texts=["テスト 1", "テスト 2", "テスト 3"],
         metadatas=[
             {
-                "title": "Title 1",
+                "title": "タイトル 1",
                 "source": "A",
                 "random": "10290",
                 "tag": ResourceTag.BASIC.value,
             },
             {
-                "title": "Title 2",
+                "title": "タイトル 2",
                 "source": "A",
                 "random": "48392",
                 "tag": ResourceTag.ADVANCED.value,
             },
             {
-                "title": "Title 3",
+                "title": "タイトル 3",
                 "source": "B",
                 "random": "32893",
                 "tag": ResourceTag.BASIC.value,
@@ -135,7 +136,7 @@ def main():
     # query for similar documents with filters
     for tag in [ResourceTag.BASIC.value, ResourceTag.ADVANCED.value]:
         response = azure_search.similarity_search(
-            query="Test 3 source1",
+            query="テスト 3",
             k=3,
             search_type="hybrid",
             filters=f"tag eq '{tag}'",

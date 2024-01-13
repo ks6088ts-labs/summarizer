@@ -1,28 +1,26 @@
 from fastapi import FastAPI
-from langchain.prompts import ChatPromptTemplate
-from langchain_openai.chat_models import AzureChatOpenAI
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+)
+from langchain.schema import SystemMessage
 from langserve import add_routes
 
-from server.settings import azure_chat_openai as azure_chat_openai_settings
+from server.routers import util
 
 
 def add_router(app: FastAPI, path: str):
-    chat_settings = azure_chat_openai_settings.AzureChatOpenAiSettings()
+    azure_chat_openai = util.get_azure_chat_openai()
 
-    azure_chat_openai_model = AzureChatOpenAI(
-        api_version=chat_settings.api_version,
-        azure_endpoint=chat_settings.azure_endpoint,
-        azure_deployment=chat_settings.azure_deployment,
-        api_key=chat_settings.api_key,
-    )
-
-    prompt = ChatPromptTemplate.from_template(
-        "Please summarize the following sentences in three lines,\
-        using the same language as the original text.\n```\n{topic}\n```"
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            SystemMessage(content="あなたは与えられた文章を簡潔な要約を出力するアシスタントです。"),
+            HumanMessagePromptTemplate.from_template("以下の文章を要約してください。\n{article}"),
+        ]
     )
 
     add_routes(
         app,
-        prompt | azure_chat_openai_model,
+        prompt | azure_chat_openai,
         path=path,
     )
