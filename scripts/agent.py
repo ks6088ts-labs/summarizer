@@ -19,6 +19,7 @@ app = typer.Typer()
 
 # load environment variables
 load_dotenv("./azure_chat_openai.env")
+load_dotenv("./langsmith.env")
 
 model = AzureChatOpenAI(
     api_version=os.getenv("api_version"),
