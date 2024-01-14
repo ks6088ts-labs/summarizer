@@ -1,6 +1,7 @@
 import os
 from enum import Enum
 
+import typer
 from azure.search.documents.indexes.models import (
     SearchableField,
     SearchField,
@@ -8,8 +9,16 @@ from azure.search.documents.indexes.models import (
     SimpleField,
 )
 from dotenv import load_dotenv
+from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_openai import AzureOpenAIEmbeddings
+
+app = typer.Typer()
+
+
+# load environment variables
+load_dotenv("./azure_embeddings_openai.env")
+load_dotenv("./azure_ai_search.env")
 
 
 class ResourceTag(Enum):
@@ -32,7 +41,9 @@ def get_embeddings() -> AzureOpenAIEmbeddings:
     )
 
 
-def get_azure_search(embeddings: AzureOpenAIEmbeddings) -> AzureSearch:
+def get_azure_search() -> AzureSearch:
+    embeddings = get_embeddings()
+
     index_name = os.getenv("index_name")
     azure_search_endpoint = os.getenv("azure_search_endpoint")
     azure_search_key = os.getenv("azure_search_key")
@@ -95,75 +106,45 @@ def get_azure_search(embeddings: AzureOpenAIEmbeddings) -> AzureSearch:
     )
 
 
-def main():
-    # load environment variables
-    load_dotenv("./azure_embeddings_openai.env")
-    load_dotenv("./azure_ai_search.env")
+@app.command()
+def create():
+    azure_search = get_azure_search()
 
-    # instantiate AzureOpenAIEmbeddings
-    embeddings = get_embeddings()
-
-    # instantiate AzureSearch
-    azure_search = get_azure_search(
-        embeddings=embeddings,
+    loader = CSVLoader(
+        file_path="./data/favorite_sports.csv",
+        csv_args={"delimiter": ",", "quotechar": '"'},
+        encoding="utf-8",
+        # NOTE: metadata_columns is dependent on the csv file
+        metadata_columns=["title", "name", "sports", "tag"],
     )
+    documents = loader.load()
+    print(f"---\nloaded documents\n---\n{documents}")
 
-    # add mock documents into AzureSearch
-    response = azure_search.add_texts(
-        texts=[
-            "東大路太郎はサッカーが好きです。",
-            "河原町二郎は野球が好きです。",
-            "寺町三郎は卓球が好きです。",
-            "烏丸四郎はバスケットボールが好きです。",
-            "堀川五郎はラクロスが好きです。",
-        ],
-        metadatas=[
-            {
-                "title": "東大路太郎の好きなスポーツ",
-                "name": "東大路太郎",
-                "sports": "サッカー",
-                "tag": ResourceTag.BASIC.value,
-            },
-            {
-                "title": "河原町二郎の好きなスポーツ",
-                "name": "河原町二郎",
-                "sports": "野球",
-                "tag": ResourceTag.BASIC.value,
-            },
-            {
-                "title": "寺町三郎の好きなスポーツ",
-                "name": "寺町三郎",
-                "sports": "卓球",
-                "tag": ResourceTag.BASIC.value,
-            },
-            {
-                "title": "烏丸四郎の好きなスポーツ",
-                "name": "烏丸四郎",
-                "sports": "バスケットボール",
-                "tag": ResourceTag.ADVANCED.value,
-            },
-            {
-                "title": "堀川五郎の好きなスポーツ",
-                "name": "堀川五郎",
-                "sports": "ラクロス",
-                "tag": ResourceTag.ADVANCED.value,
-            },
-        ],
+    response = azure_search.add_documents(documents=documents)
+    print(f"---\add_documents response\n---\n{response}")
+
+
+@app.command()
+def search(query: str = "", filters: str = None):
+    azure_search = get_azure_search()
+
+    response = azure_search.similarity_search(
+        query=query,
+        k=3,
+        search_type="hybrid",
+        filters=filters,
     )
-    print(f"add_texts response: {response}")
-
-    # Note: need to wait until the index is updated
-
-    # query for similar documents with filters
-    for tag in [ResourceTag.BASIC.value, ResourceTag.ADVANCED.value]:
-        response = azure_search.similarity_search(
-            query="好きなスポーツ",
-            k=3,
-            search_type="hybrid",
-            filters=f"tag eq '{tag}'",
-        )
-        print(f"tag: {tag}, response, {response}")
+    print(f"similarity_search response(query={query}, filters={filters}): {response}")
 
 
 if __name__ == "__main__":
-    main()
+    """
+    # Help
+    poetry run python scripts/index.py --help
+    # Create Azure Search Index
+    poetry run python scripts/index.py create
+    # Search
+    poetry run python scripts/index.py search \
+        --query "河原町二郎" --filters "tag eq 'basic'"
+    """
+    app()
