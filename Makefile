@@ -20,7 +20,7 @@ info: ## show info
 
 .PHONY: install-deps
 install-deps: ## install dependencies
-	poetry install --with lint,format,test,dev --no-root
+	poetry install --with lint,format,scripts,test,dev --no-root
 
 .PHONY: lint
 lint: ## lint codes
