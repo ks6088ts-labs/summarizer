@@ -62,15 +62,18 @@ def get_azure_search(embeddings: AzureOpenAIEmbeddings) -> AzureSearch:
             type=SearchFieldDataType.String,
             searchable=True,
         ),
-        # Additional field to store the title
         SearchableField(
             name="title",
             type=SearchFieldDataType.String,
             searchable=True,
         ),
-        # Additional field for filtering on document source
+        SearchableField(
+            name="name",
+            type=SearchFieldDataType.String,
+            searchable=True,
+        ),
         SimpleField(
-            name="source",
+            name="sports",
             type=SearchFieldDataType.String,
             filterable=True,
         ),
@@ -107,25 +110,43 @@ def main():
 
     # add mock documents into AzureSearch
     response = azure_search.add_texts(
-        texts=["テスト 1", "テスト 2", "テスト 3"],
+        texts=[
+            "東大路太郎はサッカーが好きです。",
+            "河原町二郎は野球が好きです。",
+            "寺町三郎は卓球が好きです。",
+            "烏丸四郎はバスケットボールが好きです。",
+            "堀川五郎はラクロスが好きです。",
+        ],
         metadatas=[
             {
-                "title": "タイトル 1",
-                "source": "A",
-                "random": "10290",
+                "title": "東大路太郎の好きなスポーツ",
+                "name": "東大路太郎",
+                "sports": "サッカー",
                 "tag": ResourceTag.BASIC.value,
             },
             {
-                "title": "タイトル 2",
-                "source": "A",
-                "random": "48392",
+                "title": "河原町二郎の好きなスポーツ",
+                "name": "河原町二郎",
+                "sports": "野球",
+                "tag": ResourceTag.BASIC.value,
+            },
+            {
+                "title": "寺町三郎の好きなスポーツ",
+                "name": "寺町三郎",
+                "sports": "卓球",
+                "tag": ResourceTag.BASIC.value,
+            },
+            {
+                "title": "烏丸四郎の好きなスポーツ",
+                "name": "烏丸四郎",
+                "sports": "バスケットボール",
                 "tag": ResourceTag.ADVANCED.value,
             },
             {
-                "title": "タイトル 3",
-                "source": "B",
-                "random": "32893",
-                "tag": ResourceTag.BASIC.value,
+                "title": "堀川五郎の好きなスポーツ",
+                "name": "堀川五郎",
+                "sports": "ラクロス",
+                "tag": ResourceTag.ADVANCED.value,
             },
         ],
     )
@@ -136,7 +157,7 @@ def main():
     # query for similar documents with filters
     for tag in [ResourceTag.BASIC.value, ResourceTag.ADVANCED.value]:
         response = azure_search.similarity_search(
-            query="テスト 3",
+            query="好きなスポーツ",
             k=3,
             search_type="hybrid",
             filters=f"tag eq '{tag}'",

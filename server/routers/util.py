@@ -76,15 +76,18 @@ def get_azure_search_fields(embeddings: AzureOpenAIEmbeddings):
             type=SearchFieldDataType.String,
             searchable=True,
         ),
-        # Additional field to store the title
         SearchableField(
             name="title",
             type=SearchFieldDataType.String,
             searchable=True,
         ),
-        # Additional field for filtering on document source
+        SearchableField(
+            name="name",
+            type=SearchFieldDataType.String,
+            searchable=True,
+        ),
         SimpleField(
-            name="source",
+            name="sports",
             type=SearchFieldDataType.String,
             filterable=True,
         ),
