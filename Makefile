@@ -8,6 +8,8 @@ DOCKER_IMAGE_NAME ?= summarizer
 DOCKER_PLATFORM ?= linux/amd64
 DOCKER_TAG_NAME ?= $(DOCKERHUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(GIT_TAG)
 
+DEBUG ?= false
+
 .PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -41,7 +43,7 @@ ci-test: install-deps lint test ## run CI test
 
 .PHONY: server
 server: ## run server
-	poetry run uvicorn server.main:app --host 0.0.0.0 --port 8888 --reload
+	DEBUG=$(DEBUG) poetry run uvicorn server.main:app --host 0.0.0.0 --port 8888 --reload
 
 .PHONY: jupyterlab
 jupyterlab: ## run jupyterlab server
