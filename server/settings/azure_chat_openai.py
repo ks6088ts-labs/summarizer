@@ -5,7 +5,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class AzureChatOpenAiSettings(BaseSettings):
-    api_version: str = Field("2023-07-01-preview", alias="api_version")
+    # See API versions here: https://github.com/Azure/azure-rest-api-specs/tree/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference
+    api_version: str = Field("2023-12-01-preview", alias="api_version")
     azure_endpoint: str = Field(
         "https://YOUR_AOAI_NAME.openai.azure.com/", alias="azure_endpoint"
     )
