@@ -51,3 +51,6 @@ select = [
     "F",  # pyflakes
     "I",  # isort
 ]
+ignore = [
+    "E501",  # line too long
+]
