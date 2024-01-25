@@ -1712,6 +1712,20 @@ openai = ">=1.6.1,<2.0.0"
 tiktoken = ">=0.5.2,<0.6.0"
 
 [[package]]
+name = "langgraph"
+version = "0.0.19"
+description = "langgraph"
+optional = false
+python-versions = ">=3.9.0,<4.0"
+files = [
+    {file = "langgraph-0.0.19-py3-none-any.whl", hash = "sha256:0a2e15b836d11b6a9356183c6d36e2d5b0954bce908bc3560ca19f15fc075eec"},
+    {file = "langgraph-0.0.19.tar.gz", hash = "sha256:7e25159e8f93345ada3447eb77c60b79c437d3fc46926b75d072af294100f27c"},
+]
+
+[package.dependencies]
+langchain-core = ">=0.1.8,<0.2.0"
+
+[[package]]
 name = "langserve"
 version = "0.0.38"
 description = ""
@@ -3685,6 +3699,21 @@ files = [
 ]
 
 [[package]]
+name = "tavily-python"
+version = "0.3.1"
+description = "Python wrapper for the Tavily API"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "tavily-python-0.3.1.tar.gz", hash = "sha256:0c1bbc89560f145d7aa1355555ed850f909be2745f7556ea47759bef5ccf8b7c"},
+    {file = "tavily_python-0.3.1-py3-none-any.whl", hash = "sha256:34616e6b3a86a3a043b6387d059e3652a7b9a8ac82ade865c047343391dee658"},
+]
+
+[package.dependencies]
+requests = "*"
+tiktoken = "0.5.2"
+
+[[package]]
 name = "tenacity"
 version = "8.2.3"
 description = "Retry code until it succeeds"
@@ -4240,4 +4269,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "89d10434f85d53ee8e2babcecd77750d37555d67ae4377041942922aea720f91"
+content-hash = "91725b634c8268bcf82f2c47dd2675035e7a9d0f51c1afaf3985c737b71bbd1d"
