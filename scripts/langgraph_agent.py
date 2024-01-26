@@ -134,5 +134,4 @@ def run(
 
 
 if __name__ == "__main__":
-    # poetry run python scripts/youtube_app.py --url "https://www.youtube.com/watch?v=ahnGLM-RC1Y"
     app()
